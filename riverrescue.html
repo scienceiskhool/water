@@ -276,7 +276,7 @@ canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-
 @media (max-width: 480px) { .hero-frog { width: 80px; } }
 .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .lg-chip { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 700; line-height: 1.25; min-width: 0; }
-.lg-chip img { width: 34px; height: 34px; image-rendering: pixelated; flex: none; }
+.lg-chip img { width: 40px; height: 33px; image-rendering: pixelated; flex: none; }
 .lg-chip .em { font-size: 1.5rem; width: 34px; text-align: center; flex: none; }
 .lg-chip b { display: block; font-family: var(--pixel); font-size: .55rem; font-weight: 400; line-height: 1.6; }
 .legend .lg-chip:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -339,7 +339,7 @@ canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-
 .src { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 8px; gap: 2px; flex: 1; max-width: 200px; text-align: center; }
 .src .em { font-size: 3rem; line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.4)); }
 .src .lbl { font-weight: 800; font-size: .8rem; line-height: 1.25; color: var(--neon-yellow); text-shadow: 0 2px 0 var(--night); position: relative; z-index: 1; }
-.src .inv { position: absolute; left: 50%; top: 66px; width: 46px; height: 46px; margin-left: -23px; image-rendering: pixelated; z-index: 2; animation: fall 3.2s steps(16) infinite; }
+.src .inv { position: absolute; left: 50%; top: 66px; width: 48px; height: 40px; margin-left: -24px; image-rendering: pixelated; z-index: 2; animation: fall 3.2s steps(16) infinite; }
 .src:nth-child(2) .inv { animation-delay: 1.6s; }
 @keyframes fall { 0% { transform: translateY(0) scale(.5); opacity: 0; } 12% { opacity: 1; } 45% { transform: translateY(84px) scale(1); opacity: 1; } 85% { transform: translate(40px, 88px) scale(1); opacity: 1; } 100% { transform: translate(54px, 90px) scale(1); opacity: 0; } }
 .tut-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -735,11 +735,6 @@ var SPR = {
   bag: pixelCanvas(BAG, BAG_PAL), bottle: pixelCanvas(BOTTLE, BOTTLE_PAL), can: pixelCanvas(CAN, CAN_PAL),
   drum: pixelCanvas(DRUM, DRUM_PAL), sack: pixelCanvas(SACK, SACK_PAL)
 };
-function iconCanvas(t) { // 32x32 legend icon for each hazard
-  var c = document.createElement("canvas"); c.width = 32; c.height = 32; var x = c.getContext("2d"); x.imageSmoothingEnabled = false;
-  drawHazard(x, t, 0, 4, 1, 0, 24, 0);
-  return c.toDataURL();
-}
 function legendHTML() {
   return ORDER.map(function (t) {
     return '<div class="lg-chip"><img src="' + iconCanvas(t) + '" alt=""><span><b>' + P[t].ic + " " + esc(P[t].label) + "</b>" + esc(P[t].name) + "</span></div>";
@@ -919,8 +914,6 @@ var LANES = {
 };
 var CV = $("cv"), CX = CV.getContext("2d"), SX = 1, SY = 1, raf2 = 0, lastT = 0;
 var PIX = "'Press Start 2P', ui-monospace, monospace";
-$("start-legend").innerHTML = legendHTML();
-$("p-legend").innerHTML = legendHTML();
 
 function resize() {
   var r = CV.getBoundingClientRect(); if (!r.width) return;
@@ -1170,30 +1163,46 @@ function waterCol(k, shade) {
   if (shade) c = c.map(function (v) { return Math.max(0, v - shade); });
   return "rgb(" + c.join(",") + ")";
 }
+var PUDDLE = [
+  "....kkkkkk.......", "..kkCCCCCCkkk....", ".kCCLLCCCCCCCkk..", "kCCLLCCCCCCCCCCk.", "kCCCCCCCCDCCCCCCk",
+  ".kCCCCCCCCCCCCDCk", "..kkCCCDCCCCCCCk.", "....kkCCCCCCkkk..", "......kkkkkk....."];
+var WIDE = [
+  "....kkkkkkk..........kkkkkk......", "..kkCCCCCCCkkkk....kkCCCCCCkkk...", ".kCCLLCCCCCCCCCkkkkCCCCLLCCCCCk..",
+  "kCCLLCCCCCDCCCCCCCCCCCCCCCCCCCCk.", "kCCCCCCCCCCCCCCCCCCCDCCCCCCCDCCCk", ".kCCCCDCCCCCCCCCCCCCCCCCCCCCCCCk.",
+  "..kkCCCCCCCkkkCCCCCCCCDCCCCCkk...", "....kkkkkkk...kkCCCCCCCCCkkk.....", "................kkkkkkkkk........"];
+var DROP = ["..k..", ".kCk.", "kCLCk", "kCCCk", ".kkk."];
+var SKULL = ["...kkkkkk...", "..kWWWWWWk..", ".kWWWWWWWWk.", "kWWWWWWWWWWk", "kWkkkWWkkkWk", "kWkkkWWkkkWk",
+  "kWWWWkkWWWWk", ".kWWWWWWWWk.", "..kWkWkWkk..", "..kWWWWWWk..", "...kkkkkk..."];
+var SPILL_PAL = {
+  SEW: { k: "#0D0B1A", C: "#7A5A32", L: "#A8875A", D: "#9BF27A" },
+  OIL: { k: "#0D0B1A", C: "#1E1E26", L: "#7A4FD6", D: "#2EF2E0" },
+  FER: { k: "#0D0B1A", C: "#3DBB5E", L: "#9BE07A", D: "#1E822D" }
+};
+var SPILL = {};
+["SEW", "OIL", "FER"].forEach(function (t) {
+  SPILL[t] = { one: pixelCanvas(PUDDLE, SPILL_PAL[t]), wide: pixelCanvas(WIDE, SPILL_PAL[t]), drop: pixelCanvas(DROP, SPILL_PAL[t]) };
+});
+SPILL.skull = pixelCanvas(SKULL, { k: "#0D0B1A", W: "#FFFFFF" });
+function iconCanvas(t) { // legend / tutorial icon: a spill with a drip, the skull, or the litter bag
+  var c = document.createElement("canvas"); c.width = 17; c.height = 14; var x = c.getContext("2d"); x.imageSmoothingEnabled = false;
+  if (SPILL[t]) { x.drawImage(SPILL[t].one, 0, 5); x.drawImage(SPILL[t].drop, 12, 0); }
+  else if (t === "PES") x.drawImage(SPILL.skull, 2, 1);
+  else x.drawImage(SPR.bag, 3, 2);
+  return c.toDataURL();
+}
+$("start-legend").innerHTML = legendHTML();
+$("p-legend").innerHTML = legendHTML();
 function drawHazard(x, type, px, py, len, k, size, anim) {
   var w = len * T, s = size || T;
   x.imageSmoothingEnabled = false;
   if (type === "LIT") {
     var spr = [SPR.bag, SPR.bottle, SPR.can][k % 3], sw = spr.width * 2.2, sh = spr.height * 2.2;
-    if (size) { sw = spr.width * 2.2; sh = spr.height * 2.2; }
     x.drawImage(spr, px + (w - sw) / 2, py + (s - sh) / 2 + Math.sin((anim || 0) * 3 + k) * 1.5, sw, sh);
   } else if (type === "PES") {
-    x.drawImage(SPR.drum, px + (w - 22) / 2, py + (s - 24) / 2, 22, 24);
-  } else if (type === "OIL") {
-    x.fillStyle = "#0D0B1A"; x.fillRect(px + 2, py + 5, w - 4, s - 10); x.fillRect(px + 5, py + 3, w - 10, s - 6);
-    x.fillStyle = "#1E1E26"; x.fillRect(px + 4, py + 6, w - 8, s - 12);
-    var sheen = ["#7A4FD6", "#2EF2E0", "#FCE883", "#FF7FB0"];
-    for (var i = 0; i < len * 3; i++) { x.fillStyle = sheen[(i + k) % 4]; x.fillRect(px + 6 + i * 9 % (w - 12), py + 9 + (i * 5) % (s - 18), 4, 2); }
-  } else if (type === "SEW") {
-    x.fillStyle = "#0D0B1A"; x.fillRect(px + 3, py + 4, w - 6, s - 8); x.fillRect(px + 6, py + 2, w - 12, s - 4);
-    x.fillStyle = "#7A5A32"; x.fillRect(px + 5, py + 5, w - 10, s - 10); x.fillStyle = "#A07D4C"; x.fillRect(px + 8, py + 4, w - 16, 3);
-    for (var g = 0; g < len * 2; g++) { var gx = px + 8 + ((g * 13 + (anim || 0) * 6) % (w - 16)), gy = py + 10 + (g * 7) % (s - 20); x.fillStyle = "#9BF27A"; x.fillRect(gx, gy, 3, 3); x.fillStyle = "#0D0B1A"; x.fillRect(gx + 1, gy + 1, 1, 1); }
-  } else if (type === "FER") {
-    x.fillStyle = "#0D0B1A"; x.fillRect(px + 2, py + 4, w - 4, s - 8);
-    x.fillStyle = "#3DBB5E"; x.fillRect(px + 4, py + 5, w - 8, s - 10);
-    x.fillStyle = "#7CD34A"; for (var a = 0; a < len * 5; a++) x.fillRect(px + 5 + (a * 7) % (w - 12), py + 7 + (a * 11) % (s - 16), 3, 3);
-    x.fillStyle = "#1E822D"; for (var b = 0; b < len * 3; b++) x.fillRect(px + 9 + (b * 13) % (w - 16), py + 12 + (b * 5) % (s - 20), 2, 2);
-    if (!size) x.drawImage(SPR.sack, px + w - 24, py + 7, 18, 17);
+    x.drawImage(SPILL.skull, px + (w - 24) / 2, py + (s - 22) / 2 + Math.sin((anim || 0) * 2 + k) * 1, 24, 22);
+  } else {
+    var src = len > 1 ? SPILL[type].wide : SPILL[type].one, sc = (w - 2) / src.width, h = src.height * sc;
+    x.drawImage(src, px + 1, py + (s - h) / 2, w - 2, h);
   }
 }
 function draw() {
