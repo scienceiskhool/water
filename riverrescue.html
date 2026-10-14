@@ -271,9 +271,9 @@ canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-
 
 
 /* ---------- river (dark arcade) ---------- */
-.hero-frog { position: absolute; right: -6px; bottom: -8px; width: 120px; transform: rotate(4deg); pointer-events: none; }
-.hero.has-frog { padding-right: 110px; }
-@media (max-width: 480px) { .hero-frog { width: 92px; } .hero.has-frog { padding-right: 22px; } .hero.has-frog .modes { margin-right: 70px; } }
+.title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.hero-frog { width: 104px; flex: none; margin: -12px 0 -16px; transform: rotate(4deg); pointer-events: none; }
+@media (max-width: 480px) { .hero-frog { width: 80px; } }
 .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .lg-chip { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 700; line-height: 1.25; min-width: 0; }
 .lg-chip img { width: 34px; height: 34px; image-rendering: pixelated; flex: none; }
@@ -330,13 +330,18 @@ canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-
 .tut-dots i { width: 12px; height: 12px; border: 2px solid var(--neon-teal); display: block; }
 .tut-dots i.on { background: var(--neon-yellow); border-color: var(--neon-yellow); }
 .tut-card { border: 3px solid var(--neon-teal); border-radius: 6px; background: var(--night-2); box-shadow: 0 0 0 3px var(--night), 0 0 22px rgba(46,242,224,.3); overflow: hidden; }
-.tut-scene { position: relative; display: flex; justify-content: space-around; align-items: flex-end; gap: 10px; height: 210px; padding: 0 12px 10px; background: linear-gradient(#0D0B1A, #19152E 55%, #4A5A3A 56%, #3B4A30); border-bottom: 3px solid var(--neon-teal); }
-.src { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; max-width: 200px; text-align: center; }
-.src .em { font-size: 3.2rem; line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.4)); }
-.src .lbl { font-weight: 800; font-size: .85rem; line-height: 1.25; color: var(--neon-yellow); min-height: 2.5em; text-shadow: 0 2px 0 var(--night); }
-.src .inv { position: absolute; left: 50%; bottom: 100px; width: 56px; height: 56px; margin-left: -28px; image-rendering: pixelated; animation: drift 2.8s steps(14) infinite; }
-.src:nth-child(2) .inv { animation-delay: 1.4s; }
-@keyframes drift { 0% { transform: translate(-30px, 40px) scale(.4); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(30px, 0) scale(1); opacity: 1; } }
+.tut-scene { position: relative; display: flex; justify-content: space-around; align-items: stretch; gap: 10px; height: 220px; padding: 0 12px; overflow: hidden; border-bottom: 3px solid var(--neon-teal);
+  background: linear-gradient(#0D0B1A 0, #19152E 24%, #4A5A3A 24%, #3B4A30 52%, #6B5A44 52%, #6B5A44 56%, #2E86DE 56%, #1F5FA8 100%); }
+.tut-scene::after { content: ""; position: absolute; left: 0; right: 0; top: 56%; bottom: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.22) 0 12px, transparent 12px 48px) 0 14px / 200% 2px no-repeat, repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 8px, transparent 8px 40px) 20px 44px / 200% 2px no-repeat, repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 10px, transparent 10px 56px) 8px 72px / 200% 2px no-repeat;
+  animation: flow 3s steps(12) infinite; }
+@keyframes flow { to { background-position: 48px 14px, 60px 44px, 64px 72px; } }
+.src { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 8px; gap: 2px; flex: 1; max-width: 200px; text-align: center; }
+.src .em { font-size: 3rem; line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,.4)); }
+.src .lbl { font-weight: 800; font-size: .8rem; line-height: 1.25; color: var(--neon-yellow); text-shadow: 0 2px 0 var(--night); position: relative; z-index: 1; }
+.src .inv { position: absolute; left: 50%; top: 66px; width: 46px; height: 46px; margin-left: -23px; image-rendering: pixelated; z-index: 2; animation: fall 3.2s steps(16) infinite; }
+.src:nth-child(2) .inv { animation-delay: 1.6s; }
+@keyframes fall { 0% { transform: translateY(0) scale(.5); opacity: 0; } 12% { opacity: 1; } 45% { transform: translateY(84px) scale(1); opacity: 1; } 85% { transform: translate(40px, 88px) scale(1); opacity: 1; } 100% { transform: translate(54px, 90px) scale(1); opacity: 0; } }
 .tut-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .tut-body h3 { margin: 0; font-family: var(--pixel); font-size: .8rem; line-height: 1.6; color: var(--neon-yellow); }
 .tut-body p { margin: 0; font-weight: 600; line-height: 1.45; }
@@ -372,9 +377,12 @@ canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-
 
   <!-- START -->
   <section id="scr-start" class="start">
-    <div class="card hero has-frog">
+    <div class="card hero">
       <span class="pill">Sec 1 G1 Science · Water</span>
-      <h1>River <em>Rescue</em></h1>
+      <div class="title-row">
+        <h1>River <em>Rescue</em></h1>
+        <img class="hero-frog" id="hero-frog" src="frog.png" alt="" onerror="this.remove()">
+      </div>
       <p>It's 1977 and the Singapore River is badly polluted. Help Captain Green hop across and find where each kind of pollution comes from.</p>
       <div class="demo">
         <small>Pollution in the river</small>
@@ -384,7 +392,6 @@ canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-
         <div class="mode-card"><b>Mission</b><span>3 waves. Read the clue, dodge the pollution and hop to the right source. 3 hearts.</span></div>
         <div class="mode-card dark"><b>BOSS FIGHT</b><span>Land 6 hits on the SLUDGE KING. Includes how to reduce water pollution.</span></div>
       </div>
-      <img class="hero-frog" id="hero-frog" src="frog.png" alt="" onerror="this.remove()">
     </div>
 
     <form class="card form" id="form-start" novalidate>
@@ -860,7 +867,7 @@ function paintTut() {
   $("tut-next").textContent = tutI < TUT.length - 1 ? "NEXT ▶" : "START MISSION ▶";
   if (st.how) {
     $("tut-step").textContent = "HOW TO PLAY " + (tutI + 1) + "/" + TUT.length;
-    $("tut-scene").innerHTML = '<div class="src"><img class="inv" style="bottom:46px;animation:none;width:72px;height:68px;margin-left:-36px" src="' + SPR.frog.toDataURL() + '" alt=""><span class="lbl">Captain Green</span></div>' +
+    $("tut-scene").innerHTML = '<div class="src"><img class="inv" style="top:132px;animation:none;width:60px;height:57px;margin-left:-30px" src="' + SPR.frog.toDataURL() + '" alt=""><span class="lbl">Captain Green</span></div>' +
       ORDER.slice(0, 3).map(function (t) { return '<div class="src"><span class="em">' + P[t].ic + '</span><span class="lbl">' + esc(P[t].label) + "</span></div>"; }).join("");
     $("tut-body").innerHTML = "<h3>HOW TO PLAY</h3><ul>" +
       "<li>🎯 Read the <b>clue</b>, e.g. “traps turtles and birds”. Then hop to the matching <b>source</b> at the top of the river.</li>" +
