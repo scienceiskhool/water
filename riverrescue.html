@@ -542,11 +542,12 @@ var CRIT_SECS = 10;                   // answering within this many seconds is a
 var RIVER_HEARTS = 3;                 // hearts for waves 1–3: touching pollution or hopping into the wrong source = −1 heart
 var REFILL_EACH_WAVE = false;         // true = hearts refill to full at the start of each wave
 var BONUS_HEART = true;               // true = clearing a wave gives back 1 heart (up to the maximum)
-// Waves: n = clues to answer, speed = how fast the pollution moves (1 = normal)
+// Waves: n = clues to answer, speed = how fast the pollution moves (1 = normal),
+// spacing = gaps between pollution (1 = normal, bigger = fewer pieces of pollution)
 var WAVES = [
-  { title: "WHAT DOES IT DO?", intro: "Wave 1 is about <b>effects</b>. Read what the pollution does, then hop to its source.", cats: ["effect"], n: 4, speed: 1 },
-  { title: "WHERE DOES IT COME FROM?", intro: "Wave 2 is about <b>sources</b>. Read what happened, then hop to the pollution it causes.", cats: ["source"], n: 4, speed: 1.2 },
-  { title: "MIXED!", intro: "Wave 3 mixes <b>sources and effects</b>, and the river flows faster. Read carefully!", cats: ["effect", "source", "chain"], n: 4, speed: 1.4 }
+  { title: "WHAT DOES IT DO?", intro: "Wave 1 is about <b>effects</b>. Read what the pollution does, then hop to its source.", cats: ["effect"], n: 4, speed: 0.55, spacing: 1.7 },
+  { title: "WHERE DOES IT COME FROM?", intro: "Wave 2 is about <b>sources</b>. Read what happened, then hop to the pollution it causes.", cats: ["source"], n: 4, speed: 1.2, spacing: 1 },
+  { title: "MIXED!", intro: "Wave 3 mixes <b>sources and effects</b>, and the river flows faster. Read carefully!", cats: ["effect", "source", "chain"], n: 4, speed: 1.4, spacing: 1 }
 ];
 // Optional images in the same folder. If a file is missing, a built-in pixel sprite is used instead.
 var HERO_IMG = "frog.png";
@@ -947,10 +948,10 @@ function startMission(student) {
 }
 function stopGame() { if (Inv) Inv.running = false; cancelAnimationFrame(raf2); }
 
-function buildLanes(mult) {
+function buildLanes(mult, spacing) {
   var L = {};
   Object.keys(LANES).forEach(function (r) {
-    var d = LANES[r], sp = (d.len + d.gap) * T, n = Math.ceil((WW + d.len * T * 2) / sp) + 1, loop = n * sp, off = Math.random() * sp, objs = [];
+    var d = LANES[r], sp = (d.len + d.gap * (spacing || 1)) * T, n = Math.ceil((WW + d.len * T * 2) / sp) + 1, loop = n * sp, off = Math.random() * sp, objs = [];
     for (var i = 0; i < n; i++) objs.push({ x: i * sp + off, k: i % 3 });
     L[r] = { type: d.type, len: d.len, v: d.v * mult, loop: loop, objs: objs, seed: +r * 7 };
   });
@@ -959,7 +960,7 @@ function buildLanes(mult) {
 function nextWave() {
   var I = Inv; I.wave++;
   var W = WAVES[I.wave];
-  I.lanes = buildLanes(W.speed);
+  I.lanes = buildLanes(W.speed, W.spacing);
   var order = shuffle(ORDER);
   I.homes = HOME_COLS.map(function (c, i) { return { c: c, type: order[i], flash: 0, ok: false }; });
   I.solvedWave = 0; I.phase = "intro"; I.introT = 2.6; I.clue = null;
